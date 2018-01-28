@@ -1,0 +1,40 @@
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
+
+# USAGE: Copy this file to the base of your project, and add to YOUR CODE HERE's.
+
+assign_globals() {
+  assign_globals_
+  # YOUR CODE HERE
+}
+
+init_it() {
+  init_it_
+  # YOUR CODE HERE
+}
+
+lang_it() {
+  lang_it_
+  # YOUR CODE HERE
+}
+
+build_it() {
+  build_it_
+  # YOUR CODE HERE
+}
+
+lint_it() {
+  lint_it_
+  # YOUR CODE HERE
+}
+
+test_it() {
+  test_it_
+  # YOUR CODE HERE
+}
+
+ctags_it() {
+  ctags_it_
+  # YOUR CODE HERE
+}
+
