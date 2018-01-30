@@ -427,6 +427,10 @@ main() {
   # DEVs: Wanna test CTRL-C more easily by keeping the script alive longer?
   #       Then uncomment this.
   #test_concurrency
+  # A fancy, colorful "Built!" message, meant to be easy to spot.
+  say "${FG_LIME}$(repeat_char '>' 67)${FONT_NORM}"
+  say "${FG_LIME}$(repeat_char '|' 67) BUILT!${FONT_NORM}"
+  say "${FG_LIME}$(repeat_char '<' 67) ${FONT_NORM}"
 
   lint_it
 
