@@ -66,12 +66,30 @@ source_plugin() {
   PROJECT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
   DOTFILENAME=${TRUSTME_BASENAME:-.trustme}
 
+  source_color
+
   PROJ_PLUGIN="${PROJECT_DIR}/${DOTFILENAME}.plugin"
   if [[ ! -f "${PROJ_PLUGIN}" ]]; then
     say "No project plugin! Nothing to do. Hint: Create and edit: ${PROJ_PLUGIN}"
     exit 1
   fi
   source "${PROJ_PLUGIN}"
+}
+
+source_color() {
+  local color_util='color_util.sh'
+  local color_path="${color_util}"
+  # If the /user/home/.fries/lib path is on $PATH, you can just source it.
+  if ! source "${color_path}" &> /dev/null; then
+    # But if it's not on $PATH, see if this script is a symlink, in which
+    # case color_util.sh is also part of this file's owning repo.
+    if [[ -h "${BASH_SOURCE[0]}" ]]; then
+      color_path="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/${color_util}"
+    fi
+    if ! source "${color_path}" &> /dev/null; then
+      >&2 echo "Unable to find and source ${color_util}. You're missing out!"
+    fi
+  fi
 }
 
 assign_globals_() {
