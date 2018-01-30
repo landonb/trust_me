@@ -133,16 +133,32 @@ verbose() {
 }
 
 announcement() {
+  local slugline="$2"
+  local bordelimiter="${3-#}"
+  local hlit="${4-${FG_REG}${BG_MAROON}}"
+  #local hlit="${4-${FG_REG}${BG_MAROON}${FONT_LINE}}"
   say
-  say "###################################################################"
+  local bord=$(repeat_char ${bordelimiter} 67)
+  local norm="${FONT_NORM}"
+  say "${hlit}${bord}${norm}"
   say "$1"
-  say "###################################################################"
-  [[ "$2" != '' ]] && say "$2"
+  say "${hlit}${bord}${norm}"
+  [[ "${slugline}" != '' ]] && say "${slugline}"
   say
 }
 
 verbose_announcement() {
   ${TRUSTME_VERBOSE} && announcement "$@"
+}
+
+repeat_char() {
+  [[ -z $1 ]] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
+  [[ -z $2 ]] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
+  # Bash expands {1..n} so the command becomes:
+  #   printf '=%.0s' 1 2 3 4 ... 100
+  # Where printf's format is =%.0s which means that it will always
+  # print a single '=' no matter what argument it is given.
+  printf "$1"'%.s' $(eval "echo {1.."$(($2))"}")
 }
 
 death() {
