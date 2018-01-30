@@ -118,7 +118,8 @@ say() {
   # Restrict newlines to no more than 2 in a row.
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
   if ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [[ ("$1" != "") ]]; then
-    echo "$1" >> "${OUT_FILE}"
+    # Use -e so colors are included.
+    echo -e "$1" >> "${OUT_FILE}"
   fi
   if [[ "$1" != "" ]]; then
     TRUSTME_SAID_NEWLINE=false
