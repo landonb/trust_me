@@ -448,9 +448,6 @@ main() {
   # Unit tests.
   test_it
 
-  # If we did not call ctags earlier, we'd finally call it now:
-  #  ctags_it
-
   time_n=$(date +%s.%N)
   time_elapsed=$(echo "$time_n - $time_0" | bc -l)
   announcement "DONE!"
