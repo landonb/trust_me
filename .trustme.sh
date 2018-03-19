@@ -66,7 +66,8 @@ source_plugin() {
   PROJECT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
   DOTFILENAME=${TRUSTME_BASENAME:-.trustme}
 
-  source_color
+  source_home_fries_util 'color_util.sh'
+  source_home_fries_util 'logger.sh'
 
   PROJ_PLUGIN="${PROJECT_DIR}/${DOTFILENAME}.plugin"
   if [[ ! -f "${PROJ_PLUGIN}" ]]; then
@@ -76,18 +77,18 @@ source_plugin() {
   source "${PROJ_PLUGIN}"
 }
 
-source_color() {
-  local color_util='color_util.sh'
-  local color_path="${color_util}"
+source_home_fries_util() {
+  local home_fries_util="$1"
+  local source_path="${home_fries_util}"
   # If the /user/home/.fries/lib path is on $PATH, you can just source it.
-  if ! source "${color_path}" &> /dev/null; then
-    # But if it's not on $PATH, see if this script is a symlink, in which
-    # case color_util.sh is also part of this file's owning repo.
+  if ! source "${source_path}" &> /dev/null; then
+    # But if it's not on $PATH, see if this script is a symlink, and if so,
+    # see if the util file is part of this file's owning repo.
     if [[ -h "${BASH_SOURCE[0]}" ]]; then
-      color_path="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/${color_util}"
+      source_path="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/${home_fries_util}"
     fi
-    if ! source "${color_path}" &> /dev/null; then
-      >&2 echo "Unable to find and source ${color_util}. You're missing out!"
+    if ! source "${source_path}" &> /dev/null; then
+      >&2 echo "Unable to find and source ${home_fries_util}. You're missing out!"
     fi
   fi
 }
