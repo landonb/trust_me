@@ -266,14 +266,24 @@ lock_kill_or_die() {
 
 # ===
 
+wait_maybe_fail_pre_exit() {
+  : # no-op
+}
+
+wait_maybe_fail_success() {
+  : # no-op
+}
+
 wait_maybe_fail() {
   WAIT_PID=$!
   wait ${WAIT_PID}
   local wait_for_what=$?
   if [[ ${wait_for_what} -ne 0 ]]; then
     say "ERROR: See previous error: we sniffed a ${wait_for_what}!"
+    wait_maybe_fail_pre_exit
     exit ${wait_for_what}
   fi
+  wait_maybe_fail_success
   WAIT_PID=
 }
 
