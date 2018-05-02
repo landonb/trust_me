@@ -295,6 +295,48 @@ wait_maybe_fail() {
 
 # ***
 
+alert_success_toast() {
+  local message
+  local title
+  local timeout
+  message="${1:-Yay!}"
+  title="${2:-Build Success!}"
+  timeout=${3:-2123}
+  if ``command -v notify-send >/dev/null 2>&1``; then
+    #notify-send -i face-wink -t 1234 \
+    #  'Build Success!' 'Murano CLI says, "Woot woot!!"'
+    # 2018-03-19: 1234 msec. is a tad too long. Something quicker,
+    # so I can train myself to ignore if it's a blip in the corner of my eye.
+    # Just make sure your mouse into over popup, or it won't go away!
+    # Hahaha, at 333 msec. it's basically a flash on the screen...
+    #   in that case, there's probably a better way to implement this!
+    notify-send \
+      -t ${timeout} \
+      -u normal \
+      -i '/home/landonb/.waffle/home/Pictures/Landonb-Bitmoji-Thumbs.Up.png' \
+      "${title}" \
+      "${message}"
+  fi
+}
+
+alert_success_flash() {
+  local duration
+  duration=${1:-0.075}
+  # 2018-03-19 18:04: This just gets better!
+  # sudo apt-get install xcalib
+  ##xcalib -invert -alter
+  #xcalib -alter -invert
+  # xcalib, because of X, only works on the first monitor!
+  # 2018-04-12: But I found a solution that works on all!!
+  /srv/opt/bin/xrandr-invert-colors.bin
+  sleep ${duration}
+  ##xcalib -invert -alter
+  #xcalib -alter -invert
+  /srv/opt/bin/xrandr-invert-colors.bin
+}
+
+# ***
+
 prepare_to_build() {
   rmdir "${KILL_DIR}"
   say
