@@ -93,6 +93,8 @@ source_home_fries_util() {
   fi
 }
 
+# ***
+
 assign_globals_() {
   OUT_FILE="${PROJECT_DIR}/${DOTFILENAME}.log"
 
@@ -113,6 +115,8 @@ assign_globals_() {
 assign_globals() {
   assign_globals_
 }
+
+# ***
 
 say() {
   FORCE_ECHO=${2:-false}
@@ -161,6 +165,8 @@ repeat_char() {
   # print a single '=' no matter what argument it is given.
   printf "$1"'%.s' $(eval "echo {1.."$(($2))"}")
 }
+
+# ***
 
 death() {
   if [[ -n ${WAIT_PID} ]]; then
@@ -264,7 +270,7 @@ lock_kill_or_die() {
   lock_kill_die true
 }
 
-# ===
+# ***
 
 wait_maybe_fail_pre_exit() {
   : # no-op
@@ -286,6 +292,8 @@ wait_maybe_fail() {
   wait_maybe_fail_success
   WAIT_PID=
 }
+
+# ***
 
 prepare_to_build() {
   rmdir "${KILL_DIR}"
@@ -359,8 +367,11 @@ remove_pid_files() {
   /bin/rm "${KILL_BIN}"
 }
 
+# ***
+
 main() {
   source_plugin
+
   assign_globals
 
   # We're called on both save, and on simple buffer enter.
