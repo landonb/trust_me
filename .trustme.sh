@@ -238,7 +238,7 @@ kill_other() {
         #say "Locked the kill directory! time for mischiefs"
         say "Killing ‘${build_pid}’"
         # Process, your time has come.
-        kill -s SIGUSR1 "${build_pid}" &>> "${OUT_FILE}"
+        kill -s SIGUSR1 "${build_pid}" >> "${OUT_FILE}" 2>&1
         if [[ $? -ne 0 ]]; then
           say "Kill failed! On PID ‘${build_pid}’"
           # So, what happened? Did the build complete?
