@@ -86,9 +86,24 @@ source_home_fries_util() {
     # see if the util file is part of this file's owning repo.
     if [[ -h "${BASH_SOURCE[0]}" ]]; then
       source_path="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/${home_fries_util}"
-    fi
-    if ! source "${source_path}" &> /dev/null; then
-      >&2 echo "Unable to find and source ${home_fries_util}. You're missing out!"
+      if ! source "${source_path}" &> /dev/null; then
+        # 2018-05-16 11:30: Ug, this fcn. is a mess now! So nested!
+        # Use commonly used Home Fries location if not found so far.
+        # What's up? If you run Vim from terminal, it inherits your
+        # $PATH (and home-fries/lib is on your PATH, right?); but if
+        # you run Vim from Gnome Launcher, or from Keyboard Shortcut,
+        # it's got a basic $PATH. Real solution is to fix PATH from
+        # your .vimrc; but we can be nice and patch it here, too.
+        source_path="${HOME}/.fries/lib/${home_fries_util}"
+        if ! source "${source_path}" &> /dev/null; then
+          >&2 echo "Unable to find and source ${home_fries_util}. You're missing out!"
+          # Rather than not exiting now, we could keep running, if we chose
+          # to not use the libraries being loaded (2018-05-16: which is
+          # just the logger and the color library), we could write our code
+          # to work without said libraries. But it's not wired that way.
+          exit 1
+        fi
+      fi
     fi
   fi
 }
