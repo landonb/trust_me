@@ -512,7 +512,7 @@ main() {
   #test_concurrency
   # A fancy, colorful "Built!" message, meant to be easy to spot.
   say "${FG_LIME}$(repeat_char '>' 67)${FONT_NORM}"
-  say "${FG_LIME}$(repeat_char '|' 67) BUILT!${FONT_NORM}"
+  say "${FG_LIME}~ ¡BUILT! $(repeat_char '|' 47) ¡BUILT! ~${FONT_NORM}"
   say "${FG_LIME}$(repeat_char '<' 67) ${FONT_NORM}"
 
   lint_it
@@ -524,6 +524,9 @@ main() {
   time_elapsed=$(echo "$time_n - $time_0" | bc -l)
   announcement "DONE!"
   say "Build finished at $(date '+%H:%M:%S') on $(date '+%Y-%m-%d') in ${time_elapsed} secs."
+  say
+  say "$(bg_skyblue)$(fg_mediumgrey)> $(repeat_char '═' 63) <$(attr_reset)"
+  say
 
   trap - SIGUSR1
 
