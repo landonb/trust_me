@@ -459,8 +459,10 @@ main() {
   echo "kill -s SIGUSR1 $$" > "${KILL_BIN}"
   chmod 755 "${KILL_BIN}"
 
-  # Ctags builder. Before the build. In case BUILD_DELAY_SECS is a while.
-  ctags_it
+  # Ctags builder. Before the build, if BUILD_DELAY_SECS is a while.
+  if [[ ${BUILD_DELAY_SECS} -gt 0 ]]; then
+    ctags_it
+  fi
 
   announcement "WAITING ON BUILD" "Countdown: ${BUILD_DELAY_SECS} secs..."
 
@@ -514,6 +516,11 @@ main() {
   say "${FG_LIME}$(repeat_char '>' 67)${FONT_NORM}"
   say "${FG_LIME}~ ¡BUILT! $(repeat_char '|' 47) ¡BUILT! ~${FONT_NORM}"
   say "${FG_LIME}$(repeat_char '<' 67) ${FONT_NORM}"
+
+  # Ctags builder. After the build, if there is no BUILD_DELAY_SECS.
+  if [[ ${BUILD_DELAY_SECS} -le 0 ]]; then
+    ctags_it
+  fi
 
   lint_it
 
