@@ -202,7 +202,8 @@ death() {
 
 lock_kill_die() {
   say "Desperately Seeking Lock on $(date)..."
-  [[ "$1" == true ]] && local AFTER_WAIT=true || local AFTER_WAIT=false
+  local AFTER_WAIT
+  [[ "$1" == true ]] && AFTER_WAIT=true || AFTER_WAIT=false
   local build_it=false
   # mkdir is atomic. Isn't that nice.
   if $(mkdir "${LOCK_DIR}" 2> /dev/null); then
@@ -225,60 +226,87 @@ lock_kill_die() {
     announcement "WARNING: could not mkdir ‘${LOCK_DIR}’ and it does not exist, later!"
     exit
   fi
+  say "made it out alive!"
 }
 
 kill_other() {
   [[ "$1" == true ]] && local AFTER_WAIT=true || local AFTER_WAIT=false
   [[ "$2" == true ]] && local OUR_LOCK=true || local OUR_LOCK=false
-  if $(mkdir "${KILL_DIR}" 2> /dev/null); then
-    if [[ -f "${PID_FILE}" ]]; then
-      local build_pid=$(cat "${PID_FILE}")
-      if ${AFTER_WAIT}; then
-        if [[ "$$" != "${build_pid}" ]]; then
-          echo "Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
+
+  must_mkdir_kill_dir
+
+  if [[ -f "${PID_FILE}" ]]; then
+    local build_pid=$(cat "${PID_FILE}")
+    if ${AFTER_WAIT}; then
+      if [[ "$$" != "${build_pid}" ]]; then
+        say "Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
+        rmdir "${KILL_DIR}"
+        exit
+      fi
+    elif [[ "${build_pid}" != '' ]]; then
+      #say "Locked the kill directory! time for mischiefs"
+      say "Killing ‘${build_pid}’"
+      # Process, your time has come.
+      kill -s SIGUSR1 "${build_pid}" >> "${OUT_FILE}" 2>&1
+      if [[ $? -ne 0 ]]; then
+        say "Kill failed! On PID ‘${build_pid}’"
+        # So, what happened? Did the build complete?
+        # Should we just move along? Probably...
+        # Get the name of the process. If it still exists, die.
+        if [[ $(ps -p "${build_pid}" -o comm=) != '' ]]; then
+          say "Said process still exists!"
+          rmdir "${KILL_DIR}"
           exit
         fi
-      elif [[ "${build_pid}" != '' ]]; then
-        #say "Locked the kill directory! time for mischiefs"
-        say "Killing ‘${build_pid}’"
-        # Process, your time has come.
-        kill -s SIGUSR1 "${build_pid}" >> "${OUT_FILE}" 2>&1
-        if [[ $? -ne 0 ]]; then
-          say "Kill failed! On PID ‘${build_pid}’"
-          # So, what happened? Did the build complete?
-          # Should we just move along? Probably...
-          # Get the name of the process. If it still exists, die.
-          if [[ $(ps -p "${build_pid}" -o comm=) != '' ]]; then
-            say "Said process still exists!"
+        # The process is a ghost.
+        remove_pid_files
+      else
+        # Wait for the other trustme to clean up.
+        local wait_patience=10
+        sleep 0.1
+        while [[ -f "${PID_FILE}" ]]; do
+          say "Waiting on PID ${build_pid} to cleanup..."
+          sleep 0.5
+          if $(ps p 24397 &> /dev/null); then
+            say "Disappeared!"
+            remove_pid_files
+            break
+          fi
+          wait_patience=$((${wait_patience} - 1))
+          if [[ ${wait_patience} -eq 0 ]]; then
+            say "Done waiting!"
+            rmdir "${KILL_DIR}"
             exit
           fi
-          # The process is a ghost.
-          remove_pid_files
-        else
-          # Wait for the other trustme to clean up.
-          WAIT_PATIENCE=10
-          sleep 0.1
-          while [[ -f "${PID_FILE}" ]]; do
-            say "Waiting on PID ${build_pid} to cleanup..."
-            sleep 0.5
-            WAIT_PATIENCE=$((WAIT_PATIENCE - 1))
-            [[ ${WAIT_PATIENCE} -eq 0 ]] && echo "Done waiting!" && exit
-          done
-        fi
-      else
-        say "WARNING: Empty PID file? Whatever, we'll take it!"
+        done
       fi
-    elif ! ${OUR_LOCK}; then
-      # This is after waiting, which seems weird, eh.
-      say "Kill okay without build lock, but no PID file. Is someone tinkering?"
-      exit
     else
-      say "Got the build lock and kill lock, and there's no PID. Fresh powder!"
+      say "WARNING: Empty PID file? Whatever, we'll take it!"
     fi
-  else
-    say "Someone else has the kill lock. We're boned!"
+  elif ! ${OUR_LOCK}; then
+    # This is after waiting, which seems weird, eh.
+    say "Kill okay without build lock, but no PID file. Is someone tinkering?"
     exit
+  else
+    say "Got the build lock and kill lock, and there's no PID. Fresh powder!"
   fi
+}
+
+must_mkdir_kill_dir() {
+  local wait_patience=10
+  while true; do
+    if $(mkdir "${KILL_DIR}" 2> /dev/null); then
+      return  # Success!
+    fi
+    say "Waiting on Kill Dir!..."
+    sleep 0.5
+    wait_patience=$((${wait_patience} - 1))
+    if [[ ${wait_patience} -eq 0 ]]; then
+      say "Done waiting! Dying instead!!"
+      say "A/k/a: Someone else has the kill lock. We're boned!"
+      exit
+    fi
+  done
 }
 
 lock_or_die() {
