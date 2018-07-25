@@ -175,6 +175,10 @@ say_pass() {
   say "$(fg_mediumgrey)<pass>$(attr_reset)"
 }
 
+say_skip() {
+  say "$(fg_mediumgrey)<skip>$(attr_reset)"
+}
+
 repeat_char() {
   [[ -z $1 ]] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
   [[ -z $2 ]] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
