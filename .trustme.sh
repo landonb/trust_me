@@ -374,7 +374,8 @@ alert_success_flash() {
   local duration
   #duration=${1:-0.075}
   # 2018-07-10 14:07: Sometimes the inversion sticks! Trying longer sleep...
-  duration=${1:-0.100}
+  #duration=${1:-0.100}
+  duration=${1:-0.150}
   # 2018-03-19 18:04: This just gets better!
   # sudo apt-get install xcalib
   ##xcalib -invert -alter
