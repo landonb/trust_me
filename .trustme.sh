@@ -335,6 +335,7 @@ wait_maybe_fail_success() {
 }
 
 wait_maybe_fail() {
+  # Caller: $! gets PID of last &'ed or bg'ed process -- your responsibility to have done so.
   WAIT_PID=$!
   wait ${WAIT_PID}
   local wait_for_what=$?
