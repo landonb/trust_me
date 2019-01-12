@@ -415,6 +415,22 @@ init_it() {
   init_it_
 }
 
+lock_it_() {
+  announcement "LOCK IT"
+
+  # Get the lock.
+  lock_or_die
+
+  say "┗━ PID ‘$$’ (us!) has the lock"
+  echo "$$" > "${PID_FILE}"
+  echo "kill -s SIGUSR1 $$" > "${KILL_BIN}"
+  chmod 755 "${KILL_BIN}"
+}
+
+lock_it() {
+  lock_it_
+}
+
 lang_it_() {
   announcement "LANG IT"
 }
@@ -490,13 +506,7 @@ main() {
 
   init_it
 
-  # Get the lock.
-  lock_or_die
-
-  say "- ‘$$’ has the lock"
-  echo "$$" > "${PID_FILE}"
-  echo "kill -s SIGUSR1 $$" > "${KILL_BIN}"
-  chmod 755 "${KILL_BIN}"
+  lock_it
 
   # Ctags builder. Before the build, if BUILD_DELAY_SECS is a while.
   if [[ ${BUILD_DELAY_SECS} -gt 0 ]]; then
