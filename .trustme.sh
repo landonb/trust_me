@@ -80,11 +80,15 @@ source_plugin() {
 source_home_fries_util() {
   local home_fries_util="$1"
   local source_path="${home_fries_util}"
+  local log_success=false
+  # DEV: Uncomment to get help with source errors.
+  #  log_success=true
   # If the /user/home/.fries/lib path is on $PATH, you can just source it.
   if ! source "${source_path}" &> /dev/null; then
     # But if it's not on $PATH, see if this script is a symlink, and if so,
     # see if the util file is part of this file's owning repo.
     if [[ -h "${BASH_SOURCE[0]}" ]]; then
+      # If this script is symlinked, checked its real path for the source file.
       source_path="$(dirname $(readlink -f ${BASH_SOURCE[0]}))/${home_fries_util}"
       if ! source "${source_path}" &> /dev/null; then
         # 2018-05-16 11:30: Ug, this fcn. is a mess now! So nested!
@@ -102,9 +106,15 @@ source_home_fries_util() {
           # just the logger and the color library), we could write our code
           # to work without said libraries. But it's not wired that way.
           exit 1
+        elif $log_success; then
+          echo "Sourced: Found in home-fries: ${source_path}"
         fi
+      elif $log_success; then
+        echo "Sourced: Inferred path from symlink: ${source_path}"
       fi
     fi
+  elif $log_success; then
+    echo "Sourced: Already on \$PATH: ${source_path}"
   fi
 }
 
