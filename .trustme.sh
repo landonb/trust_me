@@ -135,6 +135,12 @@ assign_globals_() {
 
   # FIXME: Add an --arg parser, and add a --verbose/-V flag.
   TRUSTME_VERBOSE=${TRUSTME_VERBOSE:-false}
+
+  # From Vim:
+  #   PARENT_COMMAND=systemd
+  # From Bash (invoked by user):
+  #   PARENT_COMMAND=bash
+  PARENT_COMMAND="$(ps -o comm= $PPID)"
 }
 
 assign_globals() {
@@ -147,7 +153,9 @@ say() {
   FORCE_ECHO=${2:-false}
   # Restrict newlines to no more than 2 in a row.
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
-  if ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [[ ("$1" != "") ]]; then
+  if [[ "${PARENT_COMMAND}" == 'bash' ]]; then
+    echo -e "$1"
+  elif ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [[ ("$1" != "") ]]; then
     # Use -e so colors are included.
     echo -e "$1" >> "${OUT_FILE}"
   fi
@@ -500,12 +508,15 @@ main() {
 
   assign_globals
 
-  # We're called on both save, and on simple buffer enter.
-  if [[ ${DUBS_TRUST_ME_ON_SAVE} != 1 ]]; then
-    # We've got nothing to do on simple buffer enter...
-    verbose_announcement "DUBS_TRUST_ME_ON_FILE: ${DUBS_TRUST_ME_ON_FILE}"
-    verbose "Nothing to do on open"
-    exit 1
+  if [[ "${PARENT_COMMAND}" != 'bash' ]]; then
+    # We're called on both save, and on simple buffer enter.
+    if [[ ${DUBS_TRUST_ME_ON_SAVE} != 1 ]]; then
+      # We've got nothing to do on simple buffer enter...
+      verbose_announcement "DUBS_TRUST_ME_ON_FILE: ${DUBS_TRUST_ME_ON_FILE}"
+      verbose "Nothing to do on open"
+      exit 1
+    fi
+  # else, being invoked deliberately by user via Bash CLI, so run!
   fi
 
   trap death SIGUSR1
