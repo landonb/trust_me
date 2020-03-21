@@ -21,7 +21,11 @@ create_colors () {
   #   E.g., export PINK='\\033[38;5;211m'
 
   # NOTE/2020-01-03: Use RGB, not ANSI codes, because tmux.
-  #   - See full comment in ~/.fries/lib/color_funcs.sh
+  #   - See full comment in
+  #       https://github.com/landonb/sh-colors:bin/colors.sh
+  #   - MAYBE/2020-03-20: Add colors.sh dependency (using local deps/ fallback)
+  #       and remove this color_util.sh file; have trust_me use colors.sh.
+  #
   # - R,G,B Formats:
   #   \033[38;2;<r>;<g>;<b>m  # RGB foreground color.
   #   \033[48;2;<r>;<g>;<b>m  # RGB background color.
