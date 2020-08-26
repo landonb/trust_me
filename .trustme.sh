@@ -209,6 +209,21 @@ repeat_char() {
 
 # ***
 
+home_fries_nanos_now () {
+  if command -v gdate > /dev/null; then
+    # macOS (brew install coreutils).
+    gdate +%s.%N
+  elif date --version &> /dev/null; then
+    # Linux/GNU.
+    date +%s.%N
+  else
+    # macOS pre-coreutils.
+    python -c 'import time; print("{:.9f}".format(time.time()))'
+  fi
+}
+æl
+# ***
+
 death() {
   if [[ -n ${WAIT_PID} ]]; then
     say "Sub-killing ‘${WAIT_PID}’"
@@ -567,7 +582,7 @@ main() {
 
   prepare_to_build
 
-  time_0=$(date +%s.%N)
+  time_0=$(home_fries_nanos_now)
   announcement "WARMING UP"
   say "Build started at $(date '+%Y-%m-%d_%H-%M-%S')"
   verbose
@@ -597,7 +612,7 @@ main() {
   # Unit tests.
   test_it
 
-  time_n=$(date +%s.%N)
+  time_n=$(home_fries_nanos_now)
   time_elapsed=$(echo "$time_n - $time_0" | bc -l)
   announcement "DONE!"
   say "Build finished at $(date '+%H:%M:%S') on $(date '+%Y-%m-%d') in ${time_elapsed} secs."
