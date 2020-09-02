@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
 # Project: https://github.com/landonb/trust_me
 # License: GPLv3

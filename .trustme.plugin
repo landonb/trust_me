@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
 
 # USAGE: Copy this file to the base of your project, and add to YOUR CODE HERE's.
