@@ -221,7 +221,7 @@ print_nanos_now () {
     python -c 'import time; print("{:.9f}".format(time.time()))'
   fi
 }
-æl
+
 # ***
 
 death() {
