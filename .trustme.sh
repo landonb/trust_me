@@ -209,7 +209,7 @@ repeat_char() {
 
 # ***
 
-home_fries_nanos_now () {
+print_nanos_now () {
   if command -v gdate > /dev/null 2>&1; then
     # macOS (brew install coreutils).
     gdate +%s.%N
@@ -582,7 +582,7 @@ main() {
 
   prepare_to_build
 
-  time_0=$(home_fries_nanos_now)
+  time_0=$(print_nanos_now)
   announcement "WARMING UP"
   say "Build started at $(date '+%Y-%m-%d_%H-%M-%S')"
   verbose
@@ -612,7 +612,7 @@ main() {
   # Unit tests.
   test_it
 
-  time_n=$(home_fries_nanos_now)
+  time_n=$(print_nanos_now)
   time_elapsed=$(echo "$time_n - $time_0" | bc -l)
   announcement "DONE!"
   say "Build finished at $(date '+%H:%M:%S') on $(date '+%Y-%m-%d') in ${time_elapsed} secs."
