@@ -63,13 +63,13 @@ source_plugin() {
   # If you add libraries to the trust_me source, source it:
   #   TRUSTME_DIR=$(dirname $(realpath -- "${BASH_SOURCE[0]}"))
   #   source "${TRUSTME_DIR}/file"
-  PROJECT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
-  DOTFILENAME=${TRUSTME_BASENAME:-.trustme}
+  TRUSTME_DIR=$(dirname -- "${BASH_SOURCE[0]}")
+  TRUSTME_PRE=${TRUSTME_BASENAME:-.trustme}
 
   source_home_fries_util 'color_util.sh'
   source_home_fries_util 'logger.sh'
 
-  PROJ_PLUGIN="${PROJECT_DIR}/${DOTFILENAME}.plugin"
+  PROJ_PLUGIN="${TRUSTME_DIR}/${TRUSTME_PRE}.plugin"
   if [[ ! -f "${PROJ_PLUGIN}" ]]; then
     say "No project plugin! Nothing to do. Hint: Create and edit: ${PROJ_PLUGIN}"
     exit 1
@@ -121,13 +121,13 @@ source_home_fries_util() {
 # ***
 
 assign_globals_() {
-  OUT_FILE="${PROJECT_DIR}/${DOTFILENAME}.log"
+  OUT_FILE="${TRUSTME_DIR}/${TRUSTME_PRE}.log"
 
-  LOCK_DIR="${PROJECT_DIR}/${DOTFILENAME}.lock"
-  KILL_DIR="${PROJECT_DIR}/${DOTFILENAME}.kill"
-  PID_FILE="${PROJECT_DIR}/${DOTFILENAME}.pid"
+  LOCK_DIR="${TRUSTME_DIR}/${TRUSTME_PRE}.lock"
+  KILL_DIR="${TRUSTME_DIR}/${TRUSTME_PRE}.kill"
+  PID_FILE="${TRUSTME_DIR}/${TRUSTME_PRE}.pid"
   # Hrm. The bang might not work without
-  KILL_BIN="${PROJECT_DIR}/${DOTFILENAME}.kill!"
+  KILL_BIN="${TRUSTME_DIR}/${TRUSTME_PRE}.kill!"
 
   # DEVS: You may want to set this, e.g., to 1, or to 300, depending on
   # how heavy your CI is. If it's a lot of CPU, set a longer delay.
