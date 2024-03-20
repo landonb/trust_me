@@ -61,7 +61,7 @@ source_plugin() {
   # so be deliberate about paths.
   #   ${BASH_SOURCE[0]} should be the absolute path to this script.
   # If you add libraries to the trust_me source, source it:
-  #   TRUSTME_DIR=$(dirname $(realpath -- "${BASH_SOURCE[0]}"))
+  #   TRUSTME_DIR=$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")
   #   source "${TRUSTME_DIR}/file"
   TRUSTME_DIR=$(dirname -- "${BASH_SOURCE[0]}")
   TRUSTME_PRE=${TRUSTME_BASENAME:-.trustme}
@@ -89,7 +89,7 @@ source_home_fries_util() {
     # see if the util file is part of this file's owning repo.
     if [[ -h "${BASH_SOURCE[0]}" ]]; then
       # If this script is symlinked, checked its real path for the source file.
-      source_path="$(dirname $(realpath -- ${BASH_SOURCE[0]}))/${home_fries_util}"
+      source_path="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")/${home_fries_util}"
       if ! source "${source_path}" &> /dev/null; then
         # 2018-05-16 11:30: Ug, this fcn. is a mess now! So nested!
         # Use commonly used Home Fries location if not found so far.
@@ -433,8 +433,8 @@ prepare_to_build() {
   say
   say "See you on the other side!"
   say
-  touch "${OUT_FILE}"
-  truncate -s 0 "${OUT_FILE}"
+  touch -- "${OUT_FILE}"
+  truncate -s 0 -- "${OUT_FILE}"
   say '' true
 }
 
