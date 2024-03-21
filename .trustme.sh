@@ -512,8 +512,8 @@ drop_locks() {
 }
 
 remove_pid_files() {
-  /bin/rm "${PID_FILE}"
-  /bin/rm "${KILL_BIN}"
+  command rm "${PID_FILE}"
+  command rm "${KILL_BIN}"
 }
 
 # ***
