@@ -534,7 +534,7 @@ main() {
   # else, being invoked deliberately by user via Bash CLI, so run!
   fi
 
-  trap death SIGUSR1
+  trap -- death SIGUSR1
 
   say
   say "              󷎟  󲁹  󲁭  󲁨  🚷  🐧  🐨  🐫  🐬  🐰  🐳  🐎 "
