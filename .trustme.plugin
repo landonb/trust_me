@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 # USAGE: Copy this file to the base of your project, and add to YOUR CODE HERE's.
 
