@@ -72,7 +72,7 @@ source_plugin() {
   source_home_fries_util 'logger.sh'
 
   PROJ_PLUGIN="${TRUSTME_DIR}/${TRUSTME_PRE}.plugin"
-  if [[ ! -f "${PROJ_PLUGIN}" ]]; then
+  if [ ! -f "${PROJ_PLUGIN}" ]; then
     say "No project plugin! Nothing to do. Hint: Create and edit: ${PROJ_PLUGIN}"
     exit 1
   fi
@@ -89,7 +89,7 @@ source_home_fries_util() {
   if ! source "${source_path}" &> /dev/null; then
     # But if it's not on $PATH, see if this script is a symlink, and if so,
     # see if the util file is part of this file's owning repo.
-    if [[ -h "${BASH_SOURCE[0]}" ]]; then
+    if [ -h "${BASH_SOURCE[0]}" ]; then
       # If this script is symlinked, checked its real path for the source file.
       source_path="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")/${home_fries_util}"
       if ! source "${source_path}" &> /dev/null; then
@@ -155,13 +155,13 @@ say() {
   FORCE_ECHO=${2:-false}
   # Restrict newlines to no more than 2 in a row.
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
-  if [[ "${PARENT_COMMAND}" == 'bash' ]]; then
+  if [ "${PARENT_COMMAND}" == "bash" ]; then
     echo -e "$1"
   elif ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [[ ("$1" != "") ]]; then
     # Use -e so colors are included.
     echo -e "$1" >> "${OUT_FILE}"
   fi
-  if [[ "$1" != "" ]]; then
+  if [ "$1" != "" ]; then
     TRUSTME_SAID_NEWLINE=false
   else
     TRUSTME_SAID_NEWLINE=true
@@ -183,7 +183,7 @@ announcement() {
   say "${hlit}${bord}${norm}"
   say "$1"
   say "${hlit}${bord}${norm}"
-  [[ "${slugline}" != '' ]] && say "${slugline}"
+  [ "${slugline}" != "" ] && say "${slugline}"
   say
 }
 
@@ -200,8 +200,8 @@ say_skip() {
 }
 
 repeat_char() {
-  [[ -z $1 ]] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
-  [[ -z $2 ]] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
+  [ -z "$1" ] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
+  [ -z "$2" ] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
   # Bash expands {1..n} so the command becomes:
   #   printf '=%.0s' 1 2 3 4 ... 100
   # Where printf's format is =%.0s which means that it will always
@@ -227,7 +227,7 @@ print_nanos_now () {
 # ***
 
 death() {
-  if [[ -n ${WAIT_PID} ]]; then
+  if [ -n "${WAIT_PID}" ]; then
     say "Sub-killing ‘${WAIT_PID}’"
     kill -s 9 ${WAIT_PID}
   fi
@@ -242,7 +242,7 @@ death() {
 lock_kill_die() {
   say "┏ Desperately Seeking Lock on $(date)..."
   local AFTER_WAIT
-  [[ "$1" == true ]] && AFTER_WAIT=true || AFTER_WAIT=false
+  ${1:-false} && AFTER_WAIT=true || AFTER_WAIT=false
   local build_it=false
   # mkdir is atomic. Isn't that nice.
   if $(mkdir "${LOCK_DIR}" 2> /dev/null); then
@@ -374,7 +374,7 @@ wait_maybe_fail() {
   WAIT_PID=$!
   wait ${WAIT_PID}
   local wait_for_what=$?
-  if [[ ${wait_for_what} -ne 0 ]]; then
+  if [ ${wait_for_what} -ne 0 ]; then
     say "ERROR: See previous error: we sniffed a ${wait_for_what}!"
     wait_maybe_fail_pre_exit
     exit ${wait_for_what}
@@ -525,9 +525,9 @@ main() {
 
   assign_globals
 
-  if [[ "${PARENT_COMMAND}" != 'bash' ]]; then
+  if [ "${PARENT_COMMAND}" != "bash" ]; then
     # We're called on both save, and on simple buffer enter.
-    if [[ ${DUBS_TRUST_ME_ON_SAVE} != 1 ]]; then
+    if [ "${DUBS_TRUST_ME_ON_SAVE}" -ne 1 ]; then
       # We've got nothing to do on simple buffer enter...
       verbose_announcement "DUBS_TRUST_ME_ON_FILE: ${DUBS_TRUST_ME_ON_FILE}"
       verbose "Nothing to do on open"
@@ -547,7 +547,7 @@ main() {
   lock_it
 
   # Ctags builder. Before the build, if BUILD_DELAY_SECS is a while.
-  if [[ ${BUILD_DELAY_SECS} -gt 0 ]]; then
+  if [ "${BUILD_DELAY_SECS}" -gt 0 ]; then
     ctags_it
   fi
 
@@ -605,7 +605,7 @@ main() {
   say "${FG_LIME}$(repeat_char '<' 67) ${FONT_NORM}"
 
   # Ctags builder. After the build, if there is no BUILD_DELAY_SECS.
-  if [[ ${BUILD_DELAY_SECS} -le 0 ]]; then
+  if [ "${BUILD_DELAY_SECS}" -le 0 ]; then
     ctags_it
   fi
 
