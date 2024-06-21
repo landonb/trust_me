@@ -175,8 +175,8 @@ verbose() {
 announcement() {
   local slugline="$2"
   local bordelimiter="${3-#}"
-  local hlit="${4-${FG_REG}${BG_MAROON}}"
-  #local hlit="${4-${FG_REG}${BG_MAROON}${FONT_LINE}}"
+  local hlit="${4-${FG_RED}${BG_MAROON}}"
+  #local hlit="${4-${FG_RED}${BG_MAROON}${FONT_LINE}}"
   say
   local bord=$(repeat_char ${bordelimiter} 67)
   local norm="${FONT_NORM}"
