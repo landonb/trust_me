@@ -66,7 +66,9 @@ source_plugin() {
   TRUSTME_DIR=$(dirname -- "${BASH_SOURCE[0]}")
   TRUSTME_PRE=${TRUSTME_BASENAME:-.trustme}
 
-  source_home_fries_util 'color_util.sh'
+  # source_home_fries_util 'color_util.sh'
+  . "${TRUSTME_DIR}/color_util.sh"
+
   source_home_fries_util 'logger.sh'
 
   PROJ_PLUGIN="${TRUSTME_DIR}/${TRUSTME_PRE}.plugin"
