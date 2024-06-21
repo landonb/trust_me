@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# vim:tw=0:ts=2:sw=2:et:norl:spell
+# vim:tw=0:ts=2:sw=2:et:norl:nospell
 
 # WHAT: A Continuous Integration (CI) script that's async-safe.
 
