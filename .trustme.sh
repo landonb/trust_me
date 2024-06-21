@@ -83,7 +83,7 @@ source_home_fries_util() {
   local log_success=false
   # DEV: Uncomment to get help with source errors.
   #  log_success=true
-  # If the /user/home/.fries/lib path is on $PATH, you can just source it.
+  # If the /user/home/.kit/sh/home-fries/lib path is on $PATH, you can just source it.
   if ! source "${source_path}" &> /dev/null; then
     # But if it's not on $PATH, see if this script is a symlink, and if so,
     # see if the util file is part of this file's owning repo.
