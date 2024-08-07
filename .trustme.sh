@@ -403,7 +403,7 @@ alert_success_toast() {
     notify-send \
       -t ${timeout} \
       -u normal \
-      -i '/home/landonb/.waffle/home/Pictures/Landonb-Bitmoji-Thumbs.Up.png' \
+      -i '/private/user/.waffle/home/Pictures/Landonb-Bitmoji-Thumbs.Up.png' \
       "${title}" \
       "${message}"
   fi
