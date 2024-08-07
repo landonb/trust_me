@@ -406,6 +406,14 @@ alert_success_toast() {
       -i '/private/user/.waffle/home/Pictures/Landonb-Bitmoji-Thumbs.Up.png' \
       "${title}" \
       "${message}"
+  elif command -v terminal-notifier > /dev/null; then
+    # macOS — e.g., /opt/homebrew/bin/terminal-notifier
+    #  Or /usr/local/bin/terminal-notifier
+    # - Without -title, prints "Terminal".
+    #   With -title "", prints "terminal-notifier".
+    #   Note -subtitle is second line, bolded, and -message
+    #   is third line, not bolded; only -message is required.
+    terminal-notifier -message "${message}" -title "${title}"
   fi
 }
 
