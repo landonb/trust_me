@@ -392,7 +392,7 @@ alert_success_toast() {
   message="${1:-Yay!}"
   title="${2:-Build Success!}"
   timeout=${3:-2123}
-  if ``command -v notify-send >/dev/null 2>&1``; then
+  if command -v notify-send > /dev/null; then
     #notify-send -i face-wink -t 1234 \
     #  'Build Success!' 'Murano CLI says, "Woot woot!!"'
     # 2018-03-19: 1234 msec. is a tad too long. Something quicker,
