@@ -59,7 +59,7 @@
 #
 #          TRUSTME_VERBOSE=true DUBS_TRUST_ME_ON_SAVE=1 ./.trustme.sh
 
-source_plugin() {
+source_plugin () {
   # This script is symlinked from each project that uses it, which enables
   # us to use realpath to resolve the path to the trust_me project itself,
   # so that we can source dependencies appropriately.
@@ -84,7 +84,7 @@ source_plugin() {
   source "${PROJ_PLUGIN}"
 }
 
-source_home_fries_util() {
+source_home_fries_util () {
   local home_fries_util="$1"
   local source_path="${home_fries_util}"
   local log_success=false
@@ -129,7 +129,7 @@ source_home_fries_util() {
 
 # ***
 
-assign_globals_() {
+assign_globals_ () {
   OUT_FILE="${PROJECT_TME}/${TRUSTME_PRE}.log"
 
   LOCK_DIR="${PROJECT_TME}/${TRUSTME_PRE}.lock"
@@ -153,13 +153,13 @@ assign_globals_() {
   PARENT_COMMAND="$(basename -- "$(ps -o comm= $PPID)")"
 }
 
-assign_globals() {
+assign_globals () {
   assign_globals_
 }
 
 # ***
 
-say() {
+say () {
   FORCE_ECHO=${2:-false}
   # Restrict newlines to no more than 2 in a row.
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
@@ -176,11 +176,11 @@ say() {
   fi
 }
 
-verbose() {
+verbose () {
   ${TRUSTME_VERBOSE} && say "$@"
 }
 
-announcement() {
+announcement () {
   local slugline="$2"
   local bordelimiter="${3-#}"
   local hlit="${4-${FG_RED}${BG_MAROON}}"
@@ -196,19 +196,19 @@ announcement() {
   say
 }
 
-verbose_announcement() {
+verbose_announcement () {
   ${TRUSTME_VERBOSE} && announcement "$@"
 }
 
-say_pass() {
+say_pass () {
   say "$(fg_mediumgrey)<pass>$(attr_reset)"
 }
 
-say_skip() {
+say_skip () {
   say "$(fg_mediumgrey)<skip>$(attr_reset)"
 }
 
-repeat_char() {
+repeat_char () {
   [ -z "$1" ] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
   [ -z "$2" ] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
   # Bash expands {1..n} so the command becomes:
@@ -235,7 +235,7 @@ print_nanos_now () {
 
 # ***
 
-death() {
+death () {
   if [ -n "${WAIT_PID}" ]; then
     say "Sub-killing ‘${WAIT_PID}’"
     kill -s 9 ${WAIT_PID}
@@ -249,7 +249,7 @@ death() {
   exit 1
 }
 
-lock_kill_die() {
+lock_kill_die () {
   say "┏ Desperately Seeking Lock on $(date)..."
   local AFTER_WAIT
   ${1:-false} && AFTER_WAIT=true || AFTER_WAIT=false
@@ -279,7 +279,7 @@ lock_kill_die() {
   say "┣━ made it out alive!"
 }
 
-kill_other() {
+kill_other () {
   [[ "$1" == true ]] && local AFTER_WAIT=true || local AFTER_WAIT=false
   [[ "$2" == true ]] && local OUR_LOCK=true || local OUR_LOCK=false
 
@@ -350,7 +350,7 @@ kill_other() {
   fi
 }
 
-must_mkdir_kill_dir() {
+must_mkdir_kill_dir () {
   local wait_patience=10
   while true; do
     if $(mkdir "${KILL_DIR}" 2> /dev/null); then
@@ -369,25 +369,25 @@ must_mkdir_kill_dir() {
   done
 }
 
-lock_or_die() {
+lock_or_die () {
   lock_kill_die false
 }
 
-lock_kill_or_die() {
+lock_kill_or_die () {
   lock_kill_die true
 }
 
 # ***
 
-wait_maybe_fail_pre_exit() {
+wait_maybe_fail_pre_exit () {
   : # no-op
 }
 
-wait_maybe_fail_success() {
+wait_maybe_fail_success () {
   : # no-op
 }
 
-wait_maybe_fail() {
+wait_maybe_fail () {
   # Caller: $! gets PID of last &'ed or bg'ed process -- your responsibility to have done so.
   WAIT_PID=$!
   wait ${WAIT_PID}
@@ -404,7 +404,7 @@ wait_maybe_fail() {
 
 # ***
 
-alert_success_toast() {
+alert_success_toast () {
   local message
   local title
   local timeout
@@ -436,7 +436,7 @@ alert_success_toast() {
   fi
 }
 
-alert_success_flash() {
+alert_success_flash () {
   local duration
   #duration=${1:-0.075}
   # 2018-07-10 14:07: Sometimes the inversion sticks! Trying longer sleep...
@@ -457,7 +457,7 @@ alert_success_flash() {
 
 # ***
 
-prepare_to_build() {
+prepare_to_build () {
   rmdir "${KILL_DIR}"
   say
   say "See you on the other side!"
@@ -469,15 +469,15 @@ prepare_to_build() {
 
 # ***
 
-init_it_() {
+init_it_ () {
   announcement "INIT IT"
 }
 
-init_it() {
+init_it () {
   init_it_
 }
 
-lock_it_() {
+lock_it_ () {
   announcement "LOCK IT"
 
   # Get the lock.
@@ -489,65 +489,65 @@ lock_it_() {
   chmod 755 "${KILL_BIN}"
 }
 
-lock_it() {
+lock_it () {
   lock_it_
 }
 
-lang_it_() {
+lang_it_ () {
   announcement "LANG IT"
 }
 
-lang_it() {
+lang_it () {
  lang_it_
 }
 
-build_it_() {
+build_it_ () {
   announcement "BUILD IT"
 }
 
-build_it() {
+build_it () {
   build_it_
 }
 
-lint_it_() {
+lint_it_ () {
   announcement "LINT IT"
 }
 
-lint_it() {
+lint_it () {
   lint_it_
 }
 
-test_it_() {
+test_it_ () {
   announcement "TEST IT"
 }
 
-test_it() {
+test_it () {
   test_it_
 }
 
-ctags_it_() {
+ctags_it_ () {
   announcement "CTAGS IT"
 }
 
-ctags_it() {
+ctags_it () {
   ctags_it_
 }
 
 # ***
 
-drop_locks() {
+drop_locks () {
   # FIXME/2017-10-03: Riddle me this: is a two-fer rmdir atomic like a 1 dir?
   rmdir "${LOCK_DIR}" "${KILL_DIR}"
 }
 
-remove_pid_files() {
+remove_pid_files () {
   command rm "${PID_FILE}"
   command rm "${KILL_BIN}"
 }
 
 # ***
 
-main() {
+main () {
   source_plugin
 
   assign_globals
@@ -622,7 +622,7 @@ main() {
   lang_it
 
   build_it
-  function test_concurrency() {
+  function test_concurrency () {
     for i in $(seq 1 5); do build_it; done
   }
   # DEVs: Wanna test CTRL-C more easily by keeping the script alive longer?
