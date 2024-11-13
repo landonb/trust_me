@@ -82,6 +82,10 @@ source_plugin () {
   source "${PROJ_PLUGIN}"
 }
 
+os_is_macos () {
+  [ "$(uname)" = 'Darwin' ]
+}
+
 # ***
 
 assign_globals_ () {
@@ -532,8 +536,13 @@ main () {
   trap -- death SIGUSR1
 
   say
-  say "              󷎟  󲁹  󲁭  󲁨  🚷  🐧  🐨  🐫  🐬  🐰  🐳  🐎 "
-  announcement "  ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎   ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎"
+  if ! os_is_macos; then
+    say "              󷎟  󲁹  󲁭  󲁨  🚷  🐧  🐨  🐫  🐬  🐰  🐳  🐎 "
+    announcement "  ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎   ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎ ❎"
+  else
+    say "                   🚷  🐧  🐨  🐫  🐬  🐰  🐳"
+    announcement "  ❎   ❎   ❎   ❎   ❎   ❎   ❎   ❎   ❎   ❎   ❎   ❎   ❎"
+  fi
 
   init_it
 
