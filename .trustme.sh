@@ -160,16 +160,20 @@ assign_globals () {
 # ***
 
 say () {
-  FORCE_ECHO=${2:-false}
+  local msg="$1"
+  local force_echo=${2:-false}
+
   # Restrict newlines to no more than 2 in a row.
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
+
   if [ "${PARENT_COMMAND}" = "bash" ]; then
-    echo -e "$1"
-  elif ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [ "$1" != "" ]; then
+    echo -e "${msg}"
+  elif ${force_echo} || ! ${TRUSTME_SAID_NEWLINE} || [ "${msg}" != "" ]; then
     # Use -e so colors are included.
-    echo -e "$1" >> "${OUT_FILE}"
+    echo -e "${msg}" >> "${OUT_FILE}"
   fi
-  if [ "$1" != "" ]; then
+
+  if [ "${msg}" != "" ]; then
     TRUSTME_SAID_NEWLINE=false
   else
     TRUSTME_SAID_NEWLINE=true
@@ -181,6 +185,7 @@ verbose () {
 }
 
 announcement () {
+  local msg="$1"
   local slugline="$2"
   local bordelimiter="${3-#}"
   local hlit="${4-${FG_RED}${BG_MAROON}}"
@@ -190,7 +195,7 @@ announcement () {
   local bord=$(repeat_char ${bordelimiter} 67)
   local norm="${FONT_NORM}"
   say "${hlit}${bord}${norm}"
-  say "$1"
+  say "${msg}"
   say "${hlit}${bord}${norm}"
   [ "${slugline}" != "" ] && say "${slugline}"
   say
@@ -209,13 +214,17 @@ say_skip () {
 }
 
 repeat_char () {
-  [ -z "$1" ] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
-  [ -z "$2" ] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
+  local char="$1"
+  local times="$2"
+
+  [ -z "${char}" ] && >&2 echo 'repeat_char: expecting 1st arg: character to repeat' && return 1
+  [ -z "${times}" ] && >&2 echo 'repeat_char: expecting 2nd arg: num. of repetitions' && return 1
+
   # Bash expands {1..n} so the command becomes:
   #   printf '=%.0s' 1 2 3 4 ... 100
   # Where printf's format is =%.0s which means that it will always
   # print a single '=' no matter what argument it is given.
-  printf "$1"'%.s' $(eval "echo {1.."$(($2))"}")
+  printf "${char}"'%.s' $(eval "echo {1.."$((${times}))"}")
 }
 
 # ***
@@ -250,20 +259,20 @@ death () {
 }
 
 lock_kill_die () {
+  local after_wait="${1:-false}"
+
   say "┏ Desperately Seeking Lock on $(date)..."
-  local AFTER_WAIT
-  ${1:-false} && AFTER_WAIT=true || AFTER_WAIT=false
   local build_it=false
   # mkdir is atomic. Isn't that nice.
   if mkdir -- "${LOCK_DIR}" 2> /dev/null; then
     say "┣━ Scored the lock!"
-    kill_other ${AFTER_WAIT} true
+    kill_other ${after_wait} true
   elif [ -d "${LOCK_DIR}" ]; then
-    if ! ${AFTER_WAIT}; then
+    if ! ${after_wait}; then
       # There's another script waiting to build, or a build going on.
       # Kill it if you can.
       say "┣━ Could not lock, but can still kill!"
-      kill_other ${AFTER_WAIT} false
+      kill_other ${after_wait} false
     else
       # This script got the lock earlier, released it, and slept, and now
       # it cannot get the lock...
@@ -280,15 +289,15 @@ lock_kill_die () {
 }
 
 kill_other () {
-  [ "$1" == "true" ] && local AFTER_WAIT=true || local AFTER_WAIT=false
-  [ "$2" == "true" ] && local OUR_LOCK=true || local OUR_LOCK=false
+  local after_wait=${1:-false}
+  local our_lock=${2:-false}
 
   must_mkdir_kill_dir
 
   if [ -f "${PID_FILE}" ]; then
     local build_pid=$(cat "${PID_FILE}")
     say "┣━ Found PID file ‘${PID_FILE}’ harboring ‘${build_pid}’."
-    if ${AFTER_WAIT}; then
+    if ${after_wait}; then
       if [ "$$" != "${build_pid}" ]; then
         say "┗━━ Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
         rmdir -- "${KILL_DIR}"
@@ -340,7 +349,7 @@ kill_other () {
     else
       say "WARNING: Empty PID file? Whatever, we'll take it!"
     fi
-  elif ! ${OUR_LOCK}; then
+  elif ! ${our_lock}; then
     # This is after waiting, which seems weird, eh.
     say "Kill okay without build lock, but no PID file. Is someone tinkering?"
 
