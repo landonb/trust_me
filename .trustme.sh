@@ -144,12 +144,15 @@ assign_globals_ () {
   # FIXME: Add an --arg parser, and add a --verbose/-V flag.
   TRUSTME_VERBOSE=${TRUSTME_VERBOSE:-false}
 
-  # From Vim:
-  #   PARENT_COMMAND=systemd
-  # From Bash (invoked by user):
-  #   PARENT_COMMAND=bash
-  # or:
-  #   PARENT_COMMAND=/opt/homebrew/bin/bash
+  # DUNNO/2024-11-13: Old comment says `ps -o comm= $PPID` prints "systemd"
+  # when this script is run from Vim (e.g., :exec '! /path/to/.trustme.sh').
+  # - But that's not what my probing says.
+  # - Probe results — :exec '! ps -o comm= $PPID' — when run from context:
+  #   - LM vim: 'vim'
+  #   - LM gVim: 'gvim'
+  #   - macOS MacVim (GUI or TUI): /Applications/MacVim.app/Contents/MacOS/Vim
+  #   - Shell: 'bash', '/opt/homebrew/bin/bash', etc.
+  # - Though note this script only cares if PARENT_COMMAND == 'bash' or not.
   PARENT_COMMAND="$(basename -- "$(ps -o comm= $PPID)")"
 }
 
