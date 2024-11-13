@@ -255,7 +255,7 @@ lock_kill_die () {
   ${1:-false} && AFTER_WAIT=true || AFTER_WAIT=false
   local build_it=false
   # mkdir is atomic. Isn't that nice.
-  if $(mkdir "${LOCK_DIR}" 2> /dev/null); then
+  if $(mkdir -- "${LOCK_DIR}" 2> /dev/null); then
     say "┣━ Scored the lock!"
     kill_other ${AFTER_WAIT} true
   elif [[ -d "${LOCK_DIR}" ]]; then
@@ -291,7 +291,7 @@ kill_other () {
     if ${AFTER_WAIT}; then
       if [[ "$$" != "${build_pid}" ]]; then
         say "┗━━ Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
-        rmdir "${KILL_DIR}"
+        rmdir -- "${KILL_DIR}"
 
         exit
       fi
@@ -309,7 +309,7 @@ kill_other () {
         # Get the name of the process. If it still exists, die.
         if [[ $(ps -p "${build_pid}" -o comm=) != '' ]]; then
           say "┗━━━  Said process still exists!"
-          rmdir "${KILL_DIR}"
+          rmdir -- "${KILL_DIR}"
 
           exit
         fi
@@ -331,7 +331,7 @@ kill_other () {
           wait_patience=$((${wait_patience} - 1))
           if [[ ${wait_patience} -eq 0 ]]; then
             say "┗━━  Done waiting!"
-            rmdir "${KILL_DIR}"
+            rmdir -- "${KILL_DIR}"
 
             exit
           fi
@@ -353,7 +353,7 @@ kill_other () {
 must_mkdir_kill_dir () {
   local wait_patience=10
   while true; do
-    if $(mkdir "${KILL_DIR}" 2> /dev/null); then
+    if $(mkdir -- "${KILL_DIR}" 2> /dev/null); then
 
       return  # Success!
     fi
@@ -458,7 +458,7 @@ alert_success_flash () {
 # ***
 
 prepare_to_build () {
-  rmdir "${KILL_DIR}"
+  rmdir -- "${KILL_DIR}"
   say
   say "See you on the other side!"
   say
@@ -537,12 +537,12 @@ ctags_it () {
 
 drop_locks () {
   # FIXME/2017-10-03: Riddle me this: is a two-fer rmdir atomic like a 1 dir?
-  rmdir "${LOCK_DIR}" "${KILL_DIR}"
+  rmdir -- "${LOCK_DIR}" "${KILL_DIR}"
 }
 
 remove_pid_files () {
-  command rm "${PID_FILE}"
-  command rm "${KILL_BIN}"
+  command rm -- "${PID_FILE}"
+  command rm -- "${KILL_BIN}"
 }
 
 # ***
@@ -654,7 +654,7 @@ main () {
   trap - SIGUSR1
 
   remove_pid_files
-  rmdir "${LOCK_DIR}"
+  rmdir -- "${LOCK_DIR}"
 }
 
 main "$@"
