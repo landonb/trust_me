@@ -159,7 +159,7 @@ say() {
   FORCE_ECHO=${2:-false}
   # Restrict newlines to no more than 2 in a row.
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
-  if [ "${PARENT_COMMAND}" == "bash" ]; then
+  if [ "${PARENT_COMMAND}" = "bash" ]; then
     echo -e "$1"
   elif ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [[ ("$1" != "") ]]; then
     # Use -e so colors are included.
