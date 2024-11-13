@@ -262,7 +262,6 @@ lock_kill_die () {
   local after_wait="${1:-false}"
 
   say "┏ Desperately Seeking Lock on $(date)..."
-  local build_it=false
   # mkdir is atomic. Isn't that nice.
   if mkdir -- "${LOCK_DIR}" 2> /dev/null; then
     say "┣━ Scored the lock!"
