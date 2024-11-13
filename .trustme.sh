@@ -295,19 +295,19 @@ kill_other () {
 
         exit
       fi
-    elif [ "${build_pid}" != '' ]; then
+    elif [ "${build_pid}" != "" ]; then
       say "┣━━ Killing ‘${build_pid}’"
-      say '' true
+      say "" true
       # Process, your time has come.
       kill -s SIGUSR1 "${build_pid}" >> "${OUT_FILE}" 2>&1
       killed=$?
-      say '' true
+      say "" true
       if [ ${killed} -ne 0 ]; then
         say "┣━━━ Kill failed! On PID ‘${build_pid}’"
         # So, what happened? Did the build complete?
         # Should we just move along? Probably...
         # Get the name of the process. If it still exists, die.
-        if [ $(ps -p "${build_pid}" -o comm=) != '' ]; then
+        if [ $(ps -p "${build_pid}" -o comm=) != "" ]; then
           say "┗━━━  Said process still exists!"
           rmdir -- "${KILL_DIR}"
 
@@ -464,7 +464,7 @@ prepare_to_build () {
   say
   touch -- "${OUT_FILE}"
   truncate -s 0 -- "${OUT_FILE}"
-  say '' true
+  say "" true
 }
 
 # ***
