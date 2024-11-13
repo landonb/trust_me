@@ -60,14 +60,14 @@
 #          TRUSTME_VERBOSE=true DUBS_TRUST_ME_ON_SAVE=1 ./.trustme.sh
 
 source_plugin() {
-  # This script is run relative to Vim's working directory,
-  # so be deliberate about paths.
-  #   ${BASH_SOURCE[0]} should be the absolute path to this script.
-  # If you add libraries to the trust_me source, source it:
-  #   TRUSTME_DIR=$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")
-  #   source "${TRUSTME_DIR}/file"
-  TRUSTME_DIR=$(dirname -- "${BASH_SOURCE[0]}")
-  TRUSTME_PRE=${TRUSTME_BASENAME:-.trustme}
+  # This script is symlinked from each project that uses it, which enables
+  # us to use realpath to resolve the path to the trust_me project itself,
+  # so that we can source dependencies appropriately.
+  # - PROJECT_TME is, e.g., /path/to/user/project/.trustme
+  PROJECT_TME="$(dirname -- "${BASH_SOURCE[0]}")"
+  # - TRUSTME_DIR is, e.g., /path/to/trust_me
+  TRUSTME_DIR="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
+  TRUSTME_PRE="${TRUSTME_BASENAME:-.trustme}"
 
   # source_home_fries_util 'color_util.sh'
   . "${TRUSTME_DIR}/color_util.sh"
@@ -126,13 +126,12 @@ source_home_fries_util() {
 # ***
 
 assign_globals_() {
-  OUT_FILE="${TRUSTME_DIR}/${TRUSTME_PRE}.log"
+  OUT_FILE="${PROJECT_TME}/${TRUSTME_PRE}.log"
 
-  LOCK_DIR="${TRUSTME_DIR}/${TRUSTME_PRE}.lock"
-  KILL_DIR="${TRUSTME_DIR}/${TRUSTME_PRE}.kill"
-  PID_FILE="${TRUSTME_DIR}/${TRUSTME_PRE}.pid"
-  # Hrm. The bang might not work without
-  KILL_BIN="${TRUSTME_DIR}/${TRUSTME_PRE}.kill!"
+  LOCK_DIR="${PROJECT_TME}/${TRUSTME_PRE}.lock"
+  KILL_DIR="${PROJECT_TME}/${TRUSTME_PRE}.kill"
+  PID_FILE="${PROJECT_TME}/${TRUSTME_PRE}.pid"
+  KILL_BIN="${PROJECT_TME}/${TRUSTME_PRE}.kill!"
 
   # DEVS: You may want to set this, e.g., to 1, or to 300, depending on
   # how heavy your CI is. If it's a lot of CPU, set a longer delay.
