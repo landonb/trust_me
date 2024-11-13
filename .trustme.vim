@@ -45,8 +45,21 @@ let s:cmd = '!' .
   \ ' DUBS_TRUST_ME_ON_SAVE=' . shellescape(g:DUBS_TRUST_ME_ON_SAVE) .
   \ ' ' .. expand('<script>:h') .. '/.trustme.sh &'
 
-" Do not run if invoked as EDITOR. This isn't quite how you check, but it works.
-if (v:servername != '')
+" Do not run if invoked as EDITOR.
+" - This check is not perfect and relies on business logic.
+" - One option is to check if run as GVim or not, because author
+"   (and DepoXy) users would generally invoke GVim with a specific
+"   --servername, e.g.,
+"     if (v:servername != '')
+"       ...
+" - Another option is to check $EDITOR environ, but this, too, relies
+"   on user- (or DepoXy-) specific knowledge, namely that when invoked
+"   per EDITOR, author (and DepoXy) users specify a minimal Vim config:
+"     ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal
+" - For coverage, we'll use both checks, though note:
+"   - Checking v:servername assumes EDITOR never used to invoke GVim.
+"   - Checking $EDITOR handles use case where user runs `vim` in terminal.
+if (v:servername != "") || (fnamemodify($EDITOR, ":h") != "editor-vim-0-0-insert-minimal")
   silent exec s:cmd
 endif
 
