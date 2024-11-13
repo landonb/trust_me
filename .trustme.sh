@@ -539,7 +539,7 @@ main() {
 
   if [ "${PARENT_COMMAND}" != "bash" ]; then
     # We're called on both save, and on simple buffer enter.
-    if [ "${DUBS_TRUST_ME_ON_SAVE}" -ne 1 ]; then
+    if [ "${DUBS_TRUST_ME_ON_SAVE:-0}" -ne 1 ]; then
       # We've got nothing to do on simple buffer enter...
       verbose_announcement "DUBS_TRUST_ME_ON_FILE: ${DUBS_TRUST_ME_ON_FILE}"
       verbose "Nothing to do on open"
