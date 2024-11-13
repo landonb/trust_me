@@ -165,7 +165,7 @@ say () {
   TRUSTME_SAID_NEWLINE=${TRUSTME_SAID_NEWLINE:-false}
   if [ "${PARENT_COMMAND}" = "bash" ]; then
     echo -e "$1"
-  elif ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [[ ("$1" != "") ]]; then
+  elif ${FORCE_ECHO} || ! ${TRUSTME_SAID_NEWLINE} || [ "$1" != "" ]; then
     # Use -e so colors are included.
     echo -e "$1" >> "${OUT_FILE}"
   fi
@@ -258,7 +258,7 @@ lock_kill_die () {
   if mkdir -- "${LOCK_DIR}" 2> /dev/null; then
     say "┣━ Scored the lock!"
     kill_other ${AFTER_WAIT} true
-  elif [[ -d "${LOCK_DIR}" ]]; then
+  elif [ -d "${LOCK_DIR}" ]; then
     if ! ${AFTER_WAIT}; then
       # There's another script waiting to build, or a build going on.
       # Kill it if you can.
@@ -280,34 +280,34 @@ lock_kill_die () {
 }
 
 kill_other () {
-  [[ "$1" == true ]] && local AFTER_WAIT=true || local AFTER_WAIT=false
-  [[ "$2" == true ]] && local OUR_LOCK=true || local OUR_LOCK=false
+  [ "$1" == "true" ] && local AFTER_WAIT=true || local AFTER_WAIT=false
+  [ "$2" == "true" ] && local OUR_LOCK=true || local OUR_LOCK=false
 
   must_mkdir_kill_dir
 
-  if [[ -f "${PID_FILE}" ]]; then
+  if [ -f "${PID_FILE}" ]; then
     local build_pid=$(cat "${PID_FILE}")
     say "┣━ Found PID file ‘${PID_FILE}’ harboring ‘${build_pid}’."
     if ${AFTER_WAIT}; then
-      if [[ "$$" != "${build_pid}" ]]; then
+      if [ "$$" != "${build_pid}" ]; then
         say "┗━━ Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
         rmdir -- "${KILL_DIR}"
 
         exit
       fi
-    elif [[ "${build_pid}" != '' ]]; then
+    elif [ "${build_pid}" != '' ]; then
       say "┣━━ Killing ‘${build_pid}’"
       say '' true
       # Process, your time has come.
       kill -s SIGUSR1 "${build_pid}" >> "${OUT_FILE}" 2>&1
       killed=$?
       say '' true
-      if [[ ${killed} -ne 0 ]]; then
+      if [ ${killed} -ne 0 ]; then
         say "┣━━━ Kill failed! On PID ‘${build_pid}’"
         # So, what happened? Did the build complete?
         # Should we just move along? Probably...
         # Get the name of the process. If it still exists, die.
-        if [[ $(ps -p "${build_pid}" -o comm=) != '' ]]; then
+        if [ $(ps -p "${build_pid}" -o comm=) != '' ]; then
           say "┗━━━  Said process still exists!"
           rmdir -- "${KILL_DIR}"
 
@@ -319,7 +319,7 @@ kill_other () {
         # Wait for the other trustme to clean up.
         local wait_patience=10
         sleep 0.1
-        while [[ -f "${PID_FILE}" ]]; do
+        while [ -f "${PID_FILE}" ]; do
           say "┣━━━ Waiting on PID ${build_pid} to cleanup..."
           sleep 0.5
           if ps p 24397 &> /dev/null; then
@@ -329,7 +329,7 @@ kill_other () {
             break
           fi
           wait_patience=$((${wait_patience} - 1))
-          if [[ ${wait_patience} -eq 0 ]]; then
+          if [ ${wait_patience} -eq 0 ]; then
             say "┗━━  Done waiting!"
             rmdir -- "${KILL_DIR}"
 
@@ -360,7 +360,7 @@ must_mkdir_kill_dir () {
     say "┣━━ Waiting on Kill Dir!..."
     sleep 0.5
     wait_patience=$((${wait_patience} - 1))
-    if [[ ${wait_patience} -eq 0 ]]; then
+    if [ ${wait_patience} -eq 0 ]; then
       say "┣━ Done waiting! Dying instead!!"
       say "┗━━ A/k/a: Someone else has the kill lock. We're boned!"
 
