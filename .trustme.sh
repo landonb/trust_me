@@ -631,7 +631,9 @@ main () {
 
   build_it
   function test_concurrency () {
-    for i in $(seq 1 5); do build_it; done
+    for i in $(seq 1 5); do
+      build_it
+    done
   }
   # DEVs: Wanna test CTRL-C more easily by keeping the script alive longer?
   #       Then uncomment this.
