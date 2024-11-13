@@ -69,8 +69,7 @@ source_plugin () {
   TRUSTME_DIR="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
   TRUSTME_PRE="${TRUSTME_BASENAME:-.trustme}"
 
-  # source_home_fries_util 'color_util.sh'
-  . "${TRUSTME_DIR}/color_util.sh"
+  . "${TRUSTME_DIR}/deps/sh-colors/bin/colors.sh"
 
   source_home_fries_util 'logger.sh'
 
@@ -191,15 +190,14 @@ announcement () {
   local msg="$1"
   local slugline="$2"
   local bordelimiter="${3-#}"
-  local hlit="${4-${FG_RED}${BG_MAROON}}"
-  #local hlit="${4-${FG_RED}${BG_MAROON}${FONT_LINE}}"
+  local hlit="${4-$(fg_red)$(bg_maroon)}"
+
+  local bord=$(repeat_char ${bordelimiter} 67)
 
   say
-  local bord=$(repeat_char ${bordelimiter} 67)
-  local norm="${FONT_NORM}"
-  say "${hlit}${bord}${norm}"
+  say "${hlit}${bord}$(attr_reset)"
   say "${msg}"
-  say "${hlit}${bord}${norm}"
+  say "${hlit}${bord}$(attr_reset)"
   [ "${slugline}" != "" ] && say "${slugline}"
   say
 }
@@ -642,9 +640,9 @@ main () {
   #       Then uncomment this.
   #test_concurrency
   # A fancy, colorful "Built!" message, meant to be easy to spot.
-  say "${FG_LIME}$(repeat_char '>' 67)${FONT_NORM}"
-  say "${FG_LIME}~ ¡BUILT! $(repeat_char '|' 47) ¡BUILT! ~${FONT_NORM}"
-  say "${FG_LIME}$(repeat_char '<' 67) ${FONT_NORM}"
+  say "$(fg_lime)$(repeat_char '>' 67)$(attr_reset)"
+  say "$(fg_lime)~ ¡BUILT! $(repeat_char '|' 47) ¡BUILT! ~$(attr_reset)"
+  say "$(fg_lime)$(repeat_char '<' 67) $(attr_reset)"
 
   # Ctags builder. After the build, if there is no BUILD_DELAY_SECS.
   if [ "${BUILD_DELAY_SECS}" -le 0 ]; then
