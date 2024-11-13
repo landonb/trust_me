@@ -144,7 +144,9 @@ assign_globals_() {
   #   PARENT_COMMAND=systemd
   # From Bash (invoked by user):
   #   PARENT_COMMAND=bash
-  PARENT_COMMAND="$(ps -o comm= $PPID)"
+  # or:
+  #   PARENT_COMMAND=/opt/homebrew/bin/bash
+  PARENT_COMMAND="$(basename -- "$(ps -o comm= $PPID)")"
 }
 
 assign_globals() {
