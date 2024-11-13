@@ -82,6 +82,10 @@ source_plugin () {
   source "${PROJ_PLUGIN}"
 }
 
+font_emphasize () {
+  echo "$(attr_emphasis)${1}$(attr_reset)"
+}
+
 os_is_macos () {
   [ "$(uname)" = 'Darwin' ]
 }
@@ -223,21 +227,23 @@ lock_kill_die () {
   local after_wait="${1:-false}"
 
   say "┏ Desperately Seeking Lock on $(date)..."
+  say "┗┓ Vying for Lock Dir: ${LOCK_DIR}"
+
   # mkdir is atomic. Isn't that nice.
   if mkdir -- "${LOCK_DIR}" 2> /dev/null; then
-    say "┣━ Scored the lock!"
+    say "┏┻━ Scored the lock!"
     kill_other ${after_wait} true
   elif [ -d "${LOCK_DIR}" ]; then
     if ! ${after_wait}; then
       # There's another script waiting to build, or a build going on.
       # Kill it if you can.
-      say "┣━ Could not lock, but can still kill!"
+      say "┏┻━ Could not lock, but can still kill!"
       kill_other ${after_wait} false
     else
       # This script got the lock earlier, released it, and slept, and now
       # it cannot get the lock...
-      say "┣━ i waited for you but you locked me out"
-      say "┗"
+      say " ┣━ $(font_emphasize "i waited for you but you locked me out")"
+      say " ┗"
       exit
     fi
   else
@@ -245,7 +251,7 @@ lock_kill_die () {
 
     exit
   fi
-  say "┣━ made it out alive!"
+  say "┣━ All systems Go!"
 }
 
 kill_other () {
@@ -256,7 +262,7 @@ kill_other () {
 
   if [ -f "${PID_FILE}" ]; then
     local build_pid=$(cat "${PID_FILE}")
-    say "┣━ Found PID file ‘${PID_FILE}’ harboring ‘${build_pid}’."
+    say "┣━ Found PID file ‘${PID_FILE}’ — ${build_pid}"
     if ${after_wait}; then
       if [ "$$" != "${build_pid}" ]; then
         say "┗━━ Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
@@ -321,16 +327,23 @@ kill_other () {
 
 must_mkdir_kill_dir () {
   local wait_patience=10
+
+  say "┗┓ Vying for Kill Dir: ${KILL_DIR}"
+
   while true; do
     if mkdir -- "${KILL_DIR}" 2> /dev/null; then
+      say "┏┻━ Scored the kill!"
 
       return  # Success!
     fi
-    say "┣━━ Waiting on Kill Dir!..."
+
+    say " ┣━ Waiting on Kill Dir!..."
+
     sleep 0.5
+
     wait_patience=$((${wait_patience} - 1))
     if [ ${wait_patience} -eq 0 ]; then
-      say "┣━ Done waiting! Dying instead!!"
+      say "┏┛ Done waiting! Dying instead!!"
       say "┗━━ A/k/a: Someone else has the kill lock. We're boned!"
 
       exit
