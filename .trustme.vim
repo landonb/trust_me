@@ -39,7 +39,7 @@ endif
 let s:cmd = '!' .
   \ ' DUBS_TRUST_ME_ON_FILE=' . shellescape(g:DUBS_TRUST_ME_ON_FILE) .
   \ ' DUBS_TRUST_ME_ON_SAVE=' . shellescape(g:DUBS_TRUST_ME_ON_SAVE) .
-  \ ' /path/to/project/.trustme.sh &'
+  \ ' ' .. expand('<script>:h') .. '/.trustme.sh &'
 
 " Do not run if invoked as EDITOR. This isn't quite how you check, but it works.
 if (v:servername != '')
