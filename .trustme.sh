@@ -77,8 +77,10 @@ source_plugin() {
   PROJ_PLUGIN="${TRUSTME_DIR}/${TRUSTME_PRE}.plugin"
   if [ ! -f "${PROJ_PLUGIN}" ]; then
     say "No project plugin! Nothing to do. Hint: Create and edit: ${PROJ_PLUGIN}"
+
     exit 1
   fi
+
   source "${PROJ_PLUGIN}"
 }
 
@@ -86,6 +88,7 @@ source_home_fries_util() {
   local home_fries_util="$1"
   local source_path="${home_fries_util}"
   local log_success=false
+
   # DEV: Uncomment to get help with source errors.
   #  log_success=true
   # If the /home/user/.kit/sh/home-fries/lib path is on $PATH, you can just source it.
@@ -110,6 +113,7 @@ source_home_fries_util() {
           # to not use the libraries being loaded (2018-05-16: which is
           # just the logger and the color library), we could write our code
           # to work without said libraries. But it's not wired that way.
+
           exit 1
         elif $log_success; then
           echo "Sourced: Found in home-fries: ${source_path}"
@@ -181,6 +185,7 @@ announcement() {
   local bordelimiter="${3-#}"
   local hlit="${4-${FG_RED}${BG_MAROON}}"
   #local hlit="${4-${FG_RED}${BG_MAROON}${FONT_LINE}}"
+
   say
   local bord=$(repeat_char ${bordelimiter} 67)
   local norm="${FONT_NORM}"
@@ -240,6 +245,7 @@ death() {
   # Note that output gets interleaved with the killing process,
   # so keep this to one line (don't use `announcement`).
   say "☠☠☠ DEATH! ☠☠☠ ‘$$’ is now dead"
+
   exit 1
 }
 
@@ -267,6 +273,7 @@ lock_kill_die() {
     fi
   else
     announcement "WARNING: could not mkdir ‘${LOCK_DIR}’ and it does not exist, later!"
+
     exit
   fi
   say "┣━ made it out alive!"
@@ -285,6 +292,7 @@ kill_other() {
       if [[ "$$" != "${build_pid}" ]]; then
         say "┗━━ Panic, jerks! The build_pid is not our PID! ${build_pid} != $$"
         rmdir "${KILL_DIR}"
+
         exit
       fi
     elif [[ "${build_pid}" != '' ]]; then
@@ -302,6 +310,7 @@ kill_other() {
         if [[ $(ps -p "${build_pid}" -o comm=) != '' ]]; then
           say "┗━━━  Said process still exists!"
           rmdir "${KILL_DIR}"
+
           exit
         fi
         # The process is a ghost.
@@ -316,12 +325,14 @@ kill_other() {
           if $(ps p 24397 &> /dev/null); then
             say "┗━━ Disappeared!"
             remove_pid_files
+
             break
           fi
           wait_patience=$((${wait_patience} - 1))
           if [[ ${wait_patience} -eq 0 ]]; then
             say "┗━━  Done waiting!"
             rmdir "${KILL_DIR}"
+
             exit
           fi
         done
@@ -332,6 +343,7 @@ kill_other() {
   elif ! ${OUR_LOCK}; then
     # This is after waiting, which seems weird, eh.
     say "Kill okay without build lock, but no PID file. Is someone tinkering?"
+
     exit
   else
     say "Got the build lock and kill lock, and there's no PID. Fresh powder!"
@@ -342,6 +354,7 @@ must_mkdir_kill_dir() {
   local wait_patience=10
   while true; do
     if $(mkdir "${KILL_DIR}" 2> /dev/null); then
+
       return  # Success!
     fi
     say "┣━━ Waiting on Kill Dir!..."
@@ -350,6 +363,7 @@ must_mkdir_kill_dir() {
     if [[ ${wait_patience} -eq 0 ]]; then
       say "┣━ Done waiting! Dying instead!!"
       say "┗━━ A/k/a: Someone else has the kill lock. We're boned!"
+
       exit
     fi
   done
@@ -381,6 +395,7 @@ wait_maybe_fail() {
   if [ ${wait_for_what} -ne 0 ]; then
     say "ERROR: See previous error: we sniffed a ${wait_for_what}!"
     wait_maybe_fail_pre_exit
+
     exit ${wait_for_what}
   fi
   wait_maybe_fail_success
@@ -543,6 +558,7 @@ main() {
       # We've got nothing to do on simple buffer enter...
       verbose_announcement "DUBS_TRUST_ME_ON_FILE: ${DUBS_TRUST_ME_ON_FILE}"
       verbose "Nothing to do on open"
+
       exit 1
     fi
   # else, being invoked deliberately by user via Bash CLI, so run!
@@ -591,6 +607,7 @@ main() {
     drop_locks
     remove_pid_files
     say "DONE! (ONLY TESTING)"
+
     exit
   fi
 
