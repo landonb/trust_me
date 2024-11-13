@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# vim:tw=0:ts=2:sw=2:et:norl:nospell
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/trust_me#🤝
+# License: GPLv3
 
 # WHAT: A Continuous Integration (CI) script that's async-safe.
 

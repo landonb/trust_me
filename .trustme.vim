@@ -1,3 +1,8 @@
+" vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=vim
+" Author: Landon Bouma <https://tallybark.com/>
+" Project: https://github.com/landonb/trust_me#🧿
+" License: GPLv3
+
 " USAGE:
 "
 "   1. Copy this file to the base of your project.

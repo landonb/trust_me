@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
-# Project: https://github.com/landonb/trust_me
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/trust_me#🤝
 # License: GPLv3
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
