@@ -255,7 +255,7 @@ lock_kill_die () {
   ${1:-false} && AFTER_WAIT=true || AFTER_WAIT=false
   local build_it=false
   # mkdir is atomic. Isn't that nice.
-  if $(mkdir -- "${LOCK_DIR}" 2> /dev/null); then
+  if mkdir -- "${LOCK_DIR}" 2> /dev/null; then
     say "┣━ Scored the lock!"
     kill_other ${AFTER_WAIT} true
   elif [[ -d "${LOCK_DIR}" ]]; then
@@ -322,7 +322,7 @@ kill_other () {
         while [[ -f "${PID_FILE}" ]]; do
           say "┣━━━ Waiting on PID ${build_pid} to cleanup..."
           sleep 0.5
-          if $(ps p 24397 &> /dev/null); then
+          if ps p 24397 &> /dev/null; then
             say "┗━━ Disappeared!"
             remove_pid_files
 
@@ -353,7 +353,7 @@ kill_other () {
 must_mkdir_kill_dir () {
   local wait_patience=10
   while true; do
-    if $(mkdir -- "${KILL_DIR}" 2> /dev/null); then
+    if mkdir -- "${KILL_DIR}" 2> /dev/null; then
 
       return  # Success!
     fi
