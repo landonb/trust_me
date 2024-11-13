@@ -17,7 +17,11 @@
 
 " SAVVY: The tags path cannot be relative.
 
-set tags=/path/to/project/tags
+let s:project_tags="/path/to/project/tags"
+
+if exists(s:project_tags)
+  exec 'set tags=./tags,tags,' .. s:project_tags
+endif
 
 " -------------------------------------------------------------------
 
