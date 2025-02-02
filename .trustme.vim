@@ -28,7 +28,7 @@ endif
 " If you open from project.vim (via the magic in=""), then neither
 " of these globals will have been set by dubs_edit_juice.vim.
 " - CXREF: SeekForSecurityHolePluginFileToLoad
-"   ~/.vim/pack/landonb/start/dubs_edit_juice/plugin/dubs_edit_juice.vim @ 1712
+"   ~/.kit/nvim/landonb/start/dubs_edit_juice/plugin/dubs_edit_juice.vim @ 1712
 if !exists("g:DUBS_TRUST_ME_ON_FILE")
   let g:DUBS_TRUST_ME_ON_FILE = '<project.vim>'
 endif
