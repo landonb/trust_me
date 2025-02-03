@@ -55,7 +55,7 @@ let s:cmd = '!' .
 " - Another option is to check $EDITOR environ, but this, too, relies
 "   on user- (or DepoXy-) specific knowledge, namely that when invoked
 "   per EDITOR, author (and DepoXy) users specify a minimal Vim config:
-"     ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal
+"     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal
 " - For coverage, we'll use both checks, though note:
 "   - Checking v:servername assumes EDITOR never used to invoke GVim.
 "   - Checking $EDITOR handles use case where user runs `vim` in terminal.
