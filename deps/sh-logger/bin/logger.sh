@@ -8,47 +8,131 @@
 # *** <beg boilerplate `source_deps`: ------------------------------|
 #                                                                   |
 
-source_deps () {
-  local thispth="$1"
-  local prefix="."
-  local depsnok=false
+_sh_logger_sh__this_filename="logger.sh"
 
-  _source_it () {
-    local prfx="${1:-.}"
-    local depd="${2:-.}"
-    local file="${3:-.}"
-    local path="${prfx}/${depd}/${file}"
-    if command -v "${file}" > /dev/null; then
-      # Use version found on PATH.
-      . "${file}"
-    elif [ -f "${path}" ]; then
-      # Fallback on local deps/ copy.
-      # NOTE: `dash` complains if missing './'.
-      . "${path}"
-    else
-      local depstxt=''
-      [ "${prfx}" != "." ] && depstxt="in ‘${prfx}/${depd}’ or "
-      >&2 echo "MISSING: ‘${file}’ not found ${depstxt}on PATH."
-      depsnok=true
-    fi
-  }
+_sh_logger_sh__source_deps() {
+  local sourced_all=true
 
-  # Allow user to symlink executables and not libraries.
-  # E.g., `ln -s /path/to/bin/logger.sh /tmp/logger.sh ; /tmp/logger.sh`
-  # knows that it can look relative to /path/to/bin/ for sourceable files.
-  [ -n "${thispth}" ] && prefix="$(dirname -- "$(realpath -- "${thispth}")")"
+  # On Bash, user can source this file from anywhere.
+  # - If not Bash, user must `cd` to this file's parent directory first.
+  local prefix="$(dirname -- "${_sh_logger_sh__this_fullpath}")"
+
+  # USAGE: Load dependencies using path relative to this file, e.g.:
+  #   _source_file "${prefix}" "../deps/path/to/lib" "dependency.sh"
 
   #                                                                 |
   # *** stop boilerplate> ------------------------------------------|
 
   # https://github.com/landonb/sh-colors
-  _source_it "${prefix}" "../deps/sh-colors/bin" "colors.sh"
+  _sh_logger_sh__source_file "${prefix}" "../deps/sh-colors/bin" "colors.sh"
 
   # *** <more boilerplate: -----------------------------------------|
   #                                                                 |
 
-  ! ${depsnok}
+  ${sourced_all}
 }
+
+_sh_logger_sh__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
+
+# Note that ${BASH_SOURCE} is technically ${BASH_SOURCE[0]}, but for POSIX
+# compatibility, avoid the array index (and note that ${BASH_SOURCE} returns
+# the first array value).
+# - TRYME: You can test the following to confirm:
+#     foo_1 () { echo ${BASH_SOURCE}; echo ${BASH_SOURCE[0]}; echo ${BASH_SOURCE[1]}; }
+#     foo_2 () { foo_1; }
+#     foo_2
+
+_sh_logger_sh__print_this_fullpath() {
+  if _sh_logger_sh__smells_like_bash; then
+    echo "$(realpath -- "${BASH_SOURCE}")"
+  elif [ "$(basename -- "$0")" = "${_sh_logger_sh__this_filename}" ]; then
+    # Assumes this script being executed, and $0 is its path.
+    echo "$(realpath -- "$0")"
+  else
+    # Assumes cwd is this script's parent directory.
+    echo "$(realpath -- "${_sh_logger_sh__this_filename}")"
+  fi
+}
+
+_sh_logger_sh__this_fullpath="$(_sh_logger_sh__print_this_fullpath)"
+
+# $0 might be path to this script, e.g.,
+#   /Users/user/.kit/sh/sh-logger/bin/logger.sh
+# Or:
+#   /Users/user/.kit/sh/home-fries/deps/sh-logger/bin/logger.sh
+# Or it might be path to Bash:
+#   /opt/homebrew/bin/bash
+# Or it might be "-bash", e.g., when shell started via tmux:
+#   -bash
+# Or even just "bash", e.g., when shell started via `bash -c bash`:
+#   bash
+_sh_logger_sh__shell_sourced() {
+  [ "$0" = "-bash" ] ||
+    [ "$0" = "bash" ] ||
+    [ "$(realpath -- "$0")" != "${_sh_logger_sh__this_fullpath}" ]
+}
+
+_sh_logger_sh__source_file() {
+  local prfx="${1:-.}"
+  local depd="${2:-.}"
+  local file="${3:-.}"
+
+  local deps_dir="${prfx}/${depd}"
+  local deps_path="${deps_dir}/${file}"
+
+  # Just in case sourced file overwrites top-level `_sh_logger_sh__this_filename`,
+  # cache our copy, should we need it for an error message.
+  local _this_file_name="${_sh_logger_sh__this_filename}"
+
+  if [ -f "${deps_path}" ]; then
+    # SAVVY: Source files from their dirs, so they can find their deps.
+    local before_cd="$(pwd -L)"
+    cd "${deps_dir}"
+    # SAVVY: If errexit, error while sourcing kills process immediately,
+    # and error you see might indicate this source file, but the line
+    # number for the file being sourced. E.g.,
+    #   /path/to/bin/myapp: 442: export: Illegal option -f
+    # where `442` is line number from, e.g., 'deps/lib/dep.sh'.
+    if ! . "${deps_path}"; then
+      >&2 echo "ERROR: Dependency ‘${file}’ returned nonzero when sourced"
+      sourced_all=false
+    fi
+    cd "${before_cd}"
+  else
+    local depstxt=""
+    [ "${prfx}" = "." ] || depstxt="in ‘${deps_dir}’ or "
+    >&2 echo "ERROR: ‘${file}’ not found under ‘${deps_dir}’"
+    if _sh_logger_sh__smells_like_bash; then
+      >&2 echo "- GAFFE: This looks like an error with the ‘_sh_logger_sh__source_file’ arguments"
+    else
+      >&2 echo "- HINT: You must source ‘${_this_file_name}’ from its parent directory"
+    fi
+    sourced_all=false
+  fi
+}
+
+# BONUS: You can use these aliases instead of the uniquely-named functions,
+# just be aware not to call any alias after calling _source_deps.
+_shell_sourced() { _sh_logger_sh__shell_sourced; }
+_source_deps() { _sh_logger_sh__source_deps; }
+
+_sh_logger_sh__source_deps_unset_cleanup() {
+  unset -v _sh_logger_sh__this_filename
+  unset -f _sh_logger_sh__print_this_fullpath
+  unset -f _sh_logger_sh__shell_sourced
+  unset -f _shell_sourced
+  unset -f _sh_logger_sh__smells_like_bash
+  unset -f _sh_logger_sh__source_deps
+  unset -f _source_deps
+  unset -f _sh_logger_sh__source_deps_unset_cleanup
+  unset -f _sh_logger_sh__source_file
+}
+
+# USAGE: When this file is being executed, before doing stuff, call:
+#   _source_deps
+# - When this file is being sourced, call both:
+#   _source_deps
+#   _sh_logger_sh__source_deps_unset_cleanup
 
 #                                                                   |
 # *** end boilerplate `source_deps`> -------------------------------|
@@ -57,7 +141,7 @@ source_deps () {
 
 # ***
 
-export_log_levels () {
+export_log_levels() {
   # The Python logging library defines the following levels,
   # along with some levels I've slid in.
   export LOG_LEVEL_FATAL=50
@@ -91,7 +175,7 @@ export_log_levels () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_logger_log_msg () {
+_sh_logger_log_msg() {
   local FCN_LEVEL="$1"
   local FCN_COLOR="$2"
   local FCN_LABEL="$3"
@@ -100,9 +184,10 @@ _sh_logger_log_msg () {
 
   # Verify LOG_LEVEL is an integer. Note the -eq spews when it fails, e.g.:
   #   bash: [: <foo>: integer expression expected
-  if [ -n "${LOG_LEVEL}" ] \
-    && ! [ "${LOG_LEVEL}" -eq "${LOG_LEVEL}" ] 2>/dev/null \
-  ; then
+  if [ -n "${LOG_LEVEL}" ] &&
+    ! [ "${LOG_LEVEL}" -eq "${LOG_LEVEL}" ] 2>/dev/null \
+    ; then
+
     >&2 echo "WARNING: Resetting LOG_LEVEL, not an integer"
 
     export LOG_LEVEL=
@@ -139,21 +224,21 @@ _sh_logger_log_msg () {
 # and can be used to trip errexit.
 
 # LOG_LEVEL_FATAL=50
-fatal () {
+fatal() {
   _sh_logger_log_msg "${LOG_LEVEL_FATAL}" "$(bg_white)$(fg_lightred)$(attr_bold)" FATL "$@"
   # So that errexit can be used to stop execution.
   return 1
 }
 
 # LOG_LEVEL_CRITICAL=50
-critical () {
+critical() {
   _sh_logger_log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_pink)$(fg_black)$(attr_bold)" CRIT "$@"
 }
 
 # ***
 
 # LOG_LEVEL_ERROR=40
-error () {
+error() {
   # Same style as critical
   _sh_logger_log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_red)$(fg_white)$(attr_bold)" ERRR "$@"
 }
@@ -161,23 +246,23 @@ error () {
 # ***
 
 # LOG_LEVEL_WARNING=30
-warning () {
+warning() {
   _sh_logger_log_msg "${LOG_LEVEL_WARNING}" "$(fg_hotpink)$(attr_bold)" WARN "$@"
 }
 
 # LOG_LEVEL_WARNING=30
-warn () {
+warn() {
   warning "$@"
 }
 
-alert () {
+alert() {
   _sh_logger_log_msg "${LOG_LEVEL_WARNING}" "$(fg_hotpink)$(attr_bold)" ALRT "$@"
 }
 
 # ***
 
 # LOG_LEVEL_NOTICE=25
-notice () {
+notice() {
   _sh_logger_log_msg "${LOG_LEVEL_NOTICE}" "$(fg_lime)" NOTC "$@"
 }
 
@@ -189,28 +274,28 @@ notice () {
 # - Users can run just `command info ...`.
 # - I don't care too much about this either way...
 # LOG_LEVEL_INFO=20
-info () {
+info() {
   _sh_logger_log_msg "${LOG_LEVEL_INFO}" "$(fg_mintgreen)" INFO "$@"
 }
 
 # ***
 
 # LOG_LEVEL_DEBUG=15
-debug () {
+debug() {
   _sh_logger_log_msg "${LOG_LEVEL_DEBUG}" "$(fg_jade)" DBUG "$@"
 }
 
 # ***
 
 # LOG_LEVEL_TRACE=10
-trace () {
+trace() {
   _sh_logger_log_msg "${LOG_LEVEL_TRACE}" "$(fg_mediumgrey)" TRCE "$@"
 }
 
 # ***
 
 # LOG_LEVEL_VERBOSE=5
-verbose () {
+verbose() {
   _sh_logger_log_msg "${LOG_LEVEL_VERBOSE}" "$(fg_mediumgrey)" VERB "$@"
 }
 
@@ -220,12 +305,12 @@ verbose () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-test_sh_logger () {
-  fatal "FATAL: I'm gonna die!"
+test_sh_logger() {
+  fatal "FATAL: I'm going down!"
   critical "CRITICAL: Take me to a hospital!"
   error "ERROR: Oops! I did it again!!"
   warn "WARN: This is your last warning."
-  warning "WARNING: You will die someday."
+  warning "WARNING: I lied, one more warning."
   notice "NOTICE: Hear ye, hear ye!!"
   info "INFO: Extra! Extra! Read all about it!!"
   debug "DEBUG: If anyone asks, you're my debugger."
@@ -235,7 +320,12 @@ test_sh_logger () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-export_log_funcs () {
+export_log_funcs() {
+  if ! _sh_logger_sh__smells_like_bash; then
+
+    return
+  fi
+
   # (lb): This function isn't necessary, but it's a nice list of
   # available functions.
   export -f fatal
@@ -254,32 +344,16 @@ export_log_funcs () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-this_file_name="logger.sh"
-shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
-# Note that bash_sourced only meaningful if shell_sourced is true.
-bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
+_sh_logger_sh__source_deps
 
-if ! shell_sourced; then
-  source_deps "$0"
-  LOG_LEVEL=0 test_sh_logger
-else
-  if bash_sourced; then
-    source_deps "${BASH_SOURCE[0]}"
-    export_log_funcs
-  else
-    # Sourced, but not in Bash, so $0 is, e.g., '-dash', and BASH_SOURCE
-    # not set. Not our problem; user needs to configure PATH in the case.
-    source_deps
-  fi
-
+if _sh_logger_sh__shell_sourced; then
   export_log_levels
+  export_log_funcs
+else
+  # Being executed.
+  LOG_LEVEL=0 test_sh_logger
 fi
 
-unset -v this_file_name
-unset -f shell_sourced
-unset -f bash_sourced
-
-unset -f source_deps
+_sh_logger_sh__source_deps_unset_cleanup
 unset -f export_log_levels
 unset -f export_log_funcs
-
